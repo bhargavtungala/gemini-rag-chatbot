@@ -1,0 +1,33 @@
+# Virtual environment folders
+.venv/
+venv/
+env/
+
+# Python virtual environment config file
+pyvenv.cfg
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+
+
+# Installer logs
+pip-log.txt
+
+# Environments
+.env
+.venv
+env/
+ENV/
+env.bak/
+venv.bak/
+
+
+
+# VS Code settings (optional)
+.vscode/
+
+#folder
+chroma_store/

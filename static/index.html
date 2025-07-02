@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🤖 Gemini RAG Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      padding: 2rem;
+      max-width: 700px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .section {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+    }
+
+    .chat-box {
+      height: 400px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+
+    .chat-msg {
+      margin-bottom: 1rem;
+    }
+
+    .user {
+      color: #2563eb;
+      font-weight: bold;
+    }
+
+    .bot {
+      color: #047857;
+      font-weight: bold;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    input[type="text"], input[type="file"] {
+      flex: 1;
+      padding: .5rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: .5rem 1rem;
+      border: none;
+      background: #2563eb;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    #uploadStatus {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <h1>🤖 Gemini RAG Chatbot</h1>
+
+  <!-- Upload Section -->
+  <div class="section">
+    <h3>📁 Upload Document</h3>
+    <input type="file" id="fileInput" accept=".txt,.pdf" />
+    <button onclick="uploadFile()">Upload</button>
+    <p id="uploadStatus"></p>
+  </div>
+
+  <!-- Chat Section -->
+  <div class="section">
+    <div class="chat-box" id="chatBox"></div>
+    <div class="input-group">
+      <input type="text" id="userInput" placeholder="Type a message…" />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const chat = document.getElementById("chatBox");
+      chat.innerHTML += `<div class="chat-msg"><span class="user">You:</span> ${msg}</div>`;
+      input.value = "";
+
+      try {
+        const res = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: msg })
+        });
+
+        if (!res.ok) throw new Error(res.status);
+        const { response } = await res.json();
+
+        chat.innerHTML += `<div class="chat-msg"><span class="bot">Gemini:</span> ${response}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+      } catch (e) {
+        chat.innerHTML += `<div class="chat-msg"><span class="bot">⚠️ Error:</span> ${e}</div>`;
+      }
+    }
+
+    async function uploadFile() {
+      const fileInput = document.getElementById("fileInput");
+      const file = fileInput.files[0];
+      if (!file) {
+        document.getElementById("uploadStatus").innerText = "Please choose a file.";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await res.json();
+        document.getElementById("uploadStatus").innerText = result.status;
+      } catch (e) {
+        document.getElementById("uploadStatus").innerText = "⚠️ Upload failed.";
+      }
+    }
+
+    // Listen for Enter key in text input
+    document.getElementById("userInput").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
