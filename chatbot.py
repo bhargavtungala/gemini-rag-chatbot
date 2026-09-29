@@ -4,7 +4,7 @@ from rag_utils import retrieve_similar
 
 MODEL_ID = "gemini-2.5-flash-preview-05-20"
 llm = ChatVertexAI(model=MODEL_ID, temperature=0.7)
-
+print ('hi')
 conversation_history = []
 
 def generate_response(user_input):
@@ -25,3 +25,5 @@ def generate_response(user_input):
     response = llm(messages).content
     conversation_history.append({"role": "assistant", "content": response})
     return response
+
+
